@@ -15,14 +15,16 @@ class SettingsPayload(BaseModel):
 
 @router.get("/settings")
 def get_settings():
-    cfg = load_config()
+    groq = get_key("GROQ_API_KEY")
+    hibp = get_key("HIBP_API_KEY")
+    nvd  = get_key("NVD_API_KEY")
     return {
-        "GROQ_API_KEY": mask_key(cfg.get("GROQ_API_KEY", "")),
-        "HIBP_API_KEY": mask_key(cfg.get("HIBP_API_KEY", "")),
-        "NVD_API_KEY": mask_key(cfg.get("NVD_API_KEY", "")),
-        "groq_configured": bool(cfg.get("GROQ_API_KEY")),
-        "hibp_configured": bool(cfg.get("HIBP_API_KEY")),
-        "nvd_configured": bool(cfg.get("NVD_API_KEY")),
+        "GROQ_API_KEY": mask_key(groq),
+        "HIBP_API_KEY": mask_key(hibp),
+        "NVD_API_KEY":  mask_key(nvd),
+        "groq_configured": bool(groq),
+        "hibp_configured": bool(hibp),
+        "nvd_configured":  bool(nvd),
     }
 
 
