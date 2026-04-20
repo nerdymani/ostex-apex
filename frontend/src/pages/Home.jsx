@@ -241,9 +241,9 @@ export default function Home() {
   const [ollamaOk, setOllamaOk] = useState(null); // null = checking, true = ok, false = down
 
   useEffect(() => {
-    fetch('/api/settings/test-groq')
+    fetch('/api/settings')
       .then(r => r.json())
-      .then(d => setOllamaOk(d.status === 'ok'))
+      .then(d => setOllamaOk(d.groq_configured === true))
       .catch(() => setOllamaOk(false));
   }, []);
 
