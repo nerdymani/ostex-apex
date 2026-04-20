@@ -406,7 +406,7 @@ export default function Results() {
               style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-dim)', borderLeft: '3px solid var(--border-bright)' }}
             >
               <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                No AI analysis available. Configure Ollama in Settings.
+                No AI analysis available. Configure Groq API key in Settings.
               </p>
             </div>
           )}

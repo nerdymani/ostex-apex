@@ -1,4 +1,5 @@
 import asyncio
+import time
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import httpx
@@ -114,9 +115,13 @@ async def scan_cve(body: ScanRequest):
     all_cves = []
     errors = []
     request_count = 0
+    timed_out = False
+    deadline = time.monotonic() + 20  # stay under Vercel's 30s proxy timeout
 
-    async with httpx.AsyncClient(timeout=30) as client:
+    async with httpx.AsyncClient(timeout=15) as client:
         for sw in software_list:
+            if timed_out:
+                break
             version = software_versions.get(sw, "").strip()
             keyword = f"{sw} {version}".strip() if version else sw
             severities = SEVERITIES_WITH_VERSION if version else SEVERITIES_WITHOUT_VERSION
@@ -124,6 +129,12 @@ async def scan_cve(body: ScanRequest):
             for severity_filter in severities:
                 # Rate-limit courtesy delay
                 if request_count > 0:
+                    if time.monotonic() + delay > deadline:
+                        errors.append(
+                            "CVE scan time limit reached — add an NVD API key in Settings for complete results"
+                        )
+                        timed_out = True
+                        break
                     await asyncio.sleep(delay)
                 request_count += 1
 

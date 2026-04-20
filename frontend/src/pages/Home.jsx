@@ -277,6 +277,9 @@ export default function Home() {
       if (!res.ok) return { _error: data.detail || `Server error ${res.status}` };
       return data;
     } catch {
+      if (text.includes('ROUTER_EXTERNAL_TARGET_ERROR') || text.includes('An error occurred with this application')) {
+        return { _error: 'Backend unreachable — Railway service may be sleeping or URL not configured.' };
+      }
       return { _error: text.slice(0, 120) || `Server error ${res.status}` };
     }
   }
