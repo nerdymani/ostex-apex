@@ -265,57 +265,74 @@ export default function Home() {
     setStepStatus(prev => ({ ...prev, [id]: status }));
   }
 
+  async function scanPost(path, body) {
+    const res = await fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const text = await res.text();
+    try {
+      const data = JSON.parse(text);
+      if (!res.ok) return { _error: data.detail || `Server error ${res.status}` };
+      return data;
+    } catch {
+      return { _error: text.slice(0, 120) || `Server error ${res.status}` };
+    }
+  }
+
   async function runScan() {
     if (!form.org_name.trim() || !form.domain.trim()) { setError(t('home.error_required')); return; }
     if (form.software.length === 0) { setError(t('home.error_software')); return; }
     setError(''); setScanning(true); setStepStatus({});
 
     try {
-      const profileRes = await fetch('/api/profile', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form),
-      });
-      const { scan_id } = await profileRes.json();
+      // Wake backend (Railway free tier sleeps after inactivity)
+      await fetch('/api/').catch(() => {});
+
+      // Profile — must succeed to get scan_id
+      const profileData = await scanPost('/api/profile', form);
+      if (profileData._error) throw new Error(profileData._error);
+      const { scan_id } = profileData;
       const results = { scan_id, profile: form };
 
       setStep('recon', 'loading');
-      const reconData = await (await fetch('/api/scan/recon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scan_id }) })).json();
-      results.reconData = reconData;
+      const reconData = await scanPost('/api/scan/recon', { scan_id });
+      if (!reconData._error) results.reconData = reconData;
       setStep('recon', 'done');
 
       setStep('cve', 'loading');
-      const cveData = await (await fetch('/api/scan/cve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scan_id }) })).json();
-      results.cves = cveData.cves || []; results.cveErrors = cveData.errors || [];
+      const cveData = await scanPost('/api/scan/cve', { scan_id });
+      results.cves = cveData.cves || [];
+      results.cveErrors = cveData.errors || (cveData._error ? [cveData._error] : []);
       setStep('cve', 'done');
 
       setStep('breaches', 'loading');
-      const breachData = await (await fetch('/api/scan/breaches', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scan_id }) })).json();
-      results.breaches = breachData.breaches || []; results.breachMessage = breachData.message;
-      results.breachConfigured = breachData.configured !== false;
+      const breachData = await scanPost('/api/scan/breaches', { scan_id });
+      results.breaches = breachData.breaches || [];
+      results.breachMessage = breachData.message || breachData._error;
+      results.breachConfigured = breachData.configured !== false && !breachData._error;
       setStep('breaches', 'done');
 
       setStep('exploited', 'loading');
-      const exploitedData = await (await fetch('/api/scan/exploited', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scan_id }) })).json();
+      const exploitedData = await scanPost('/api/scan/exploited', { scan_id });
       results.exploited = exploitedData.matches || [];
-      if (cveData.cves) {
+      if (results.cves.length && results.exploited.length) {
         const exploitedIds = new Set(results.exploited.map(e => e.cve_id));
         results.cves = results.cves.map(c => ({ ...c, actively_exploited: exploitedIds.has(c.cve_id) }));
       }
       setStep('exploited', 'done');
 
       setStep('analyse', 'loading');
-      let analysisData = null;
-      try {
-        const analyseRes = await fetch('/api/analyse', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scan_id }) });
-        if (analyseRes.ok) { const ad = await analyseRes.json(); analysisData = ad.analysis; }
-        else { const err = await analyseRes.json(); results.analysisError = err.detail || 'AI analysis failed.'; }
-      } catch (e) { results.analysisError = e.message; }
-      results.analysis = analysisData;
+      const analyseData = await scanPost('/api/analyse', { scan_id });
+      if (analyseData._error) results.analysisError = analyseData._error;
+      else results.analysis = analyseData.analysis;
       setStep('analyse', 'done');
 
       setScanData(results);
       navigate('/results');
     } catch (e) {
-      setError(`Scan failed: ${e.message}`);
+      setError(e.message || 'Scan failed. Check your connection and try again.');
       setScanning(false);
     }
   }
