@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Google Fonts ─────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ── Design tokens ────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg:          #060a15;
+  --bg-surface:  #0b1120;
+  --bg-elevated: #111a2e;
+  --bg-hover:    #152038;
+
+  /* Borders */
+  --border-dim:    #161f35;
+  --border:        #1e2d4a;
+  --border-bright: #2c3f68;
+
+  /* Brand */
+  --brand:         #F06422;
+  --brand-dark:    #c4511a;
+  --brand-dim:     rgba(240,100,34,0.10);
+  --brand-glow:    rgba(240,100,34,0.22);
+
+  /* Text */
+  --text:          #dde4f0;
+  --text-secondary:#4a5878;
+  --text-muted:    #232d42;
+
+  /* Semantic */
+  --safe:    #10b981;
+  --danger:  #ef4444;
+  --warning: #f59e0b;
+  --info:    #3b82f6;
+
+  /* Typography scale */
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body:    'Space Grotesk', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+}
+
+/* ── Reset & base ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  /* Scanline atmosphere */
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.008) 2px,
+      rgba(255,255,255,0.008) 3px
+    ),
+    radial-gradient(ellipse 120% 80% at 50% 0%, rgba(240,100,34,0.04) 0%, transparent 60%);
+  min-height: 100vh;
+}
+
+/* ── Typography ───────────────────────────────────────── */
+.display { font-family: var(--font-display); }
+code, .mono, pre { font-family: var(--font-mono); }
+
+/* ── Scrollbar ────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--brand); }
+
+/* ── Selection ────────────────────────────────────────── */
+::selection { background: rgba(240,100,34,0.25); color: white; }
+
+/* ── Utility classes ──────────────────────────────────── */
+.label {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.data {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text);
+}
+
+/* Left-accent card */
+.intel-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  border-left: 2px solid var(--brand);
+}
+
+/* Divider with centered label */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-dim);
+}
