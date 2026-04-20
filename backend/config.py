@@ -33,7 +33,8 @@ def save_config(data: dict) -> None:
 
 def get_key(name: str) -> str:
     # Environment variables take priority (e.g. Railway / Render deployments)
-    return os.environ.get(name) or load_config().get(name, "")
+    value = os.environ.get(name) or load_config().get(name, "")
+    return value.strip() if value else ""
 
 
 def mask_key(value: str) -> str:
