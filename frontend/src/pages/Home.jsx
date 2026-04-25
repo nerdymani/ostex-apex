@@ -76,7 +76,7 @@ function NewsTeaserCard({ item }) {
         </span>
         <p
           className="text-xs font-semibold leading-snug line-clamp-3 mb-2"
-          style={{ color: 'var(--text)', fontFamily: 'var(--font-body)' }}
+          style={{ color: 'rgba(255,255,255,0.92)', fontFamily: 'var(--font-body)' }}
         >
           {item.title}
         </p>

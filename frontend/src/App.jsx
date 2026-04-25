@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
@@ -10,6 +10,9 @@ import News from './pages/News';
 
 export const ScanContext = createContext(null);
 export function useScan() { return useContext(ScanContext); }
+
+export const ThemeContext = createContext(null);
+export function useTheme() { return useContext(ThemeContext); }
 
 function AppShell({ scanData, setScanData }) {
 
@@ -60,14 +63,26 @@ function AppShell({ scanData, setScanData }) {
 
 export default function App() {
   const [scanData, setScanData] = useState(null);
+  const [theme, setTheme] = useState(() => localStorage.getItem('apex-theme') || 'dark');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('apex-theme', theme);
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme(t => t === 'dark' ? 'light' : 'dark');
+  }
 
   return (
-    <I18nextProvider i18n={i18n}>
-      <ScanContext.Provider value={{ scanData, setScanData }}>
-        <BrowserRouter>
-          <AppShell scanData={scanData} setScanData={setScanData} />
-        </BrowserRouter>
-      </ScanContext.Provider>
-    </I18nextProvider>
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      <I18nextProvider i18n={i18n}>
+        <ScanContext.Provider value={{ scanData, setScanData }}>
+          <BrowserRouter>
+            <AppShell scanData={scanData} setScanData={setScanData} />
+          </BrowserRouter>
+        </ScanContext.Provider>
+      </I18nextProvider>
+    </ThemeContext.Provider>
   );
 }

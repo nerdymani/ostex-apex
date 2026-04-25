@@ -5,7 +5,7 @@
 /* ── Google Fonts ─────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* ── Design tokens ────────────────────────────────────── */
+/* ── Design tokens — Dark (default) ──────────────────── */
 :root {
   /* Backgrounds */
   --bg:          #060a15;
@@ -35,10 +35,34 @@
   --warning: #f59e0b;
   --info:    #3b82f6;
 
+  /* Component-specific */
+  --bg-nav: rgba(6,10,21,0.97);
+
   /* Typography scale */
   --font-display: 'Barlow Condensed', sans-serif;
   --font-body:    'Space Grotesk', sans-serif;
   --font-mono:    'JetBrains Mono', monospace;
+}
+
+/* ── Design tokens — Light ────────────────────────────── */
+[data-theme="light"] {
+  --bg:          #f5f3ef;
+  --bg-surface:  #ffffff;
+  --bg-elevated: #eceae5;
+  --bg-hover:    #e2dfd8;
+
+  --border-dim:    #dedad2;
+  --border:        #cac5bb;
+  --border-bright: #a8a29a;
+
+  --brand-dim:     rgba(240,100,34,0.08);
+  --brand-glow:    rgba(240,100,34,0.18);
+
+  --text:          #111318;
+  --text-secondary:#6b6660;
+  --text-muted:    #c0bbb4;
+
+  --bg-nav: rgba(245,243,239,0.97);
 }
 
 /* ── Reset & base ─────────────────────────────────────── */
@@ -50,7 +74,6 @@ body {
   color: var(--text);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
-  /* Scanline atmosphere */
   background-image:
     repeating-linear-gradient(
       0deg,
@@ -61,6 +84,11 @@ body {
     ),
     radial-gradient(ellipse 120% 80% at 50% 0%, rgba(240,100,34,0.04) 0%, transparent 60%);
   min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+[data-theme="light"] body {
+  background-image: radial-gradient(ellipse 120% 80% at 50% 0%, rgba(240,100,34,0.05) 0%, transparent 60%);
 }
 
 /* ── Typography ───────────────────────────────────────── */
